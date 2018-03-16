@@ -6,7 +6,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import com.afollestad.materialdialogs.*;
-import com.afollestad.materialdialogs.MaterialDialog.Callback;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
@@ -25,9 +24,9 @@ import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity {
 	class AppInfo {
 		private String appname = "";
 		private String pname = "";
@@ -111,12 +110,9 @@ public class MainActivity extends ActionBarActivity {
 		.positiveColorRes(R.color.bluegrey500)
 		.negativeText(R.string.save_prompt_negative)
 		.negativeColorRes(R.color.bluegrey500)
-		.callback(new Callback() {
+		.onNegative(new MaterialDialog.SingleButtonCallback() {
 			@Override
-			public void onPositive(MaterialDialog dialog) {
-			}
-			@Override
-			public void onNegative(MaterialDialog dialog) {
+			public void onClick(MaterialDialog dialog, DialogAction which) {
 				finish();
 			}
 		})

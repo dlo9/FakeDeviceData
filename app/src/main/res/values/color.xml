@@ -10,13 +10,13 @@
 
 	<color name="button_color_normal">@color/lightgrean500</color>
 	<color name="button_color_pressed">@color/lightgrean700</color>
-	<color name="button_plus_icon">@color/white</color>
+	<color name="button_plus_icon">@color/off_white</color>
 	
 	<!-- color set -->
 	<color name="black_semi_transparent">#B2000000</color>
     <color name="background">#e5e5e5</color>
     <color name="half_black">#808080</color>
-    <color name="white">#fafafa</color>
+    <color name="off_white">#fafafa</color>
     <color name="white_pressed">#f1f1f1</color>
     <color name="pink">#e91e63</color>
     <color name="pink_pressed">#ec407a</color>

@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -13,7 +13,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class FakeDataSettingActivity extends ActionBarActivity implements OnCheckedChangeListener {
+public class FakeDataSettingActivity extends AppCompatActivity implements OnCheckedChangeListener {
 
 	private EditText edt_fake_board;
 	private EditText edt_fake_bootloader;
