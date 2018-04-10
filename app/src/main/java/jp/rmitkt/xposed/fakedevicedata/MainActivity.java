@@ -1,5 +1,6 @@
 package jp.rmitkt.xposed.fakedevicedata;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -32,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
 		private String pname = "";
 	}
 
+	protected static final String prefFileName = "pref";
 	SharedPreferences pref;  
 	ListView appList;
 	ArrayList<AppInfo> appinfos;
@@ -70,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
 			}
 		});
 
-		pref = getSharedPreferences("pref", Context.MODE_WORLD_READABLE);
+		pref = getSharedPreferences(prefFileName, Context.MODE_PRIVATE);
 		appList = (ListView) findViewById(R.id.appList);
 		setAppList();
 }
@@ -81,8 +83,23 @@ public class MainActivity extends AppCompatActivity {
 			editor.putBoolean(appinfos.get(i).pname, appList.isItemChecked(i));
 		}
 		editor.apply();
+		fixPreferencesPermissions(this, prefFileName);
 		Toast.makeText(this, R.string.save_message, Toast.LENGTH_LONG).show();
 		finish();
+	}
+
+	// https://github.com/GravityBox/GravityBox/commit/2a96528ec9f51964355d9c699b7b1cbe027d52f5
+	// MODE_WORLD_READABLE is depricated, so use MODE_PRIVATE and manually set file & folder r+x permissions
+	protected static void fixPreferencesPermissions(Context context, String prefFileName) {
+		File prefsFile = new File(context.getApplicationContext().getFilesDir().getAbsoluteFile() + "/../shared_prefs/" + prefFileName + ".xml");
+		File prefsDir = prefsFile.getParentFile();
+		File appDir = prefsDir.getParentFile();
+
+		prefsFile.setReadable(true, false);
+		prefsDir.setExecutable(true, false);
+		prefsDir.setReadable(true, false);
+		appDir.setExecutable(true, false);
+		appDir.setReadable(true, false);
 	}
 
 	public void selectAll(View v){

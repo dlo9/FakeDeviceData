@@ -1,6 +1,5 @@
 package jp.rmitkt.xposed.fakedevicedata;
 
-import de.robv.android.xposed.XposedBridge;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -71,7 +70,7 @@ public class FakeDataSettingActivity extends AppCompatActivity implements OnChec
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.settings);
-		pref = getSharedPreferences("pref", Context.MODE_WORLD_READABLE);
+		pref = getSharedPreferences(MainActivity.prefFileName, Context.MODE_PRIVATE);
 
 		// get views
 		edt_fake_board = (EditText) findViewById(R.id.edt_fake_board);
@@ -330,6 +329,7 @@ public class FakeDataSettingActivity extends AppCompatActivity implements OnChec
 			editor.putInt("fake_sdk_int_value", Integer.parseInt(edt_fake_sdk_int.getText().toString().trim()));
 		}
 		editor.apply();
+		MainActivity.fixPreferencesPermissions(this, MainActivity.prefFileName);
 	}
 
 	private void setValue(String name, CheckBox check, EditText edit, int type) {

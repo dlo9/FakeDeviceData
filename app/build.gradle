@@ -22,4 +22,5 @@ dependencies {
     compileOnly 'de.robv.android.xposed:api:82'
     implementation 'com.getbase:floatingactionbutton:1.10.1'
     implementation 'com.afollestad.material-dialogs:core:0.9.6.0'
+    implementation 'com.crossbowffs.remotepreferences:remotepreferences:0.5'
 }

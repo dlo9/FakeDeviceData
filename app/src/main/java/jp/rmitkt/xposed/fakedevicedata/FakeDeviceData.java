@@ -1,132 +1,221 @@
 package jp.rmitkt.xposed.fakedevicedata;
 
-import android.app.Activity;
+import android.app.AndroidAppHelper;
+import android.content.ContentResolver;
+import android.provider.Settings;
+import android.util.Log;
+
+import java.io.FileNotFoundException;
 
 import de.robv.android.xposed.*;
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 import de.robv.android.xposed.XposedBridge;
 
 public class FakeDeviceData implements IXposedHookLoadPackage {
-	private boolean DEBUG_MODE = false;
-	private XSharedPreferences pref;
+	private boolean DEBUG_MODE = true;
+	private static XSharedPreferences pref;
 	private LoadPackageParam lpparam;
+	private static final String LogSource = "fakedevicedata";
 
 	@Override
 	public void handleLoadPackage(final LoadPackageParam lpp) throws Throwable {
-		pref = new XSharedPreferences(FakeDeviceData.class.getPackage().getName(), "pref");
 		lpparam = lpp;
 
-		try{
-			XposedHelpers.findAndHookMethod((Class)Activity.class, "onResume", new XC_MethodHook(){
-				@Override
-				protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-					pref.reload();
-				}
-			});
-		}catch (NoSuchMethodError e){
-			XposedBridge.log("couldn't hook method " + "onResume");
+		try {
+			pref = new XSharedPreferences("jp.rmitkt.xposed.fakedevicedata", "pref");
+			if (!pref.getBoolean(lpparam.packageName, false))
+				return;
+
+			// Values like Build.MODEL
+			handle();
+		} catch (Exception e) {
+			if (DEBUG_MODE) XposedBridge.log(LogSource + ": Error loading prefs.xml. Does the file exist and have read permissions?");
+			return;
 		}
 
-		if (pref.getBoolean(lpparam.packageName, false)){
-			Class<?> classBuild = XposedHelpers.findClass("android.os.Build", lpp.classLoader);
-			if(pref.getBoolean("fake_board_key", false) && !(pref.getString("fake_board_value", "").equalsIgnoreCase(""))){
-				if(DEBUG_MODE) XposedBridge.log("setStaticObjectField:BOARD="+pref.getString("fake_board_value", ""));
-				XposedHelpers.setStaticObjectField(classBuild, "BOARD" ,pref.getString("fake_board_value", ""));
-			}
-			if(pref.getBoolean("fake_bootloader_key", false) && !(pref.getString("fake_bootloader_value", "").equalsIgnoreCase(""))){
-				if(DEBUG_MODE) XposedBridge.log("setStaticObjectField:BOOTLOADER="+pref.getString("fake_bootloader_value", ""));
-				XposedHelpers.setStaticObjectField(classBuild, "BOOTLOADER" ,pref.getString("fake_bootloader_value", ""));
-			}
-			if(pref.getBoolean("fake_brand_key", false) && !(pref.getString("fake_brand_value", "").equalsIgnoreCase(""))){
-				if(DEBUG_MODE) XposedBridge.log("setStaticObjectField:BRAND="+pref.getString("fake_brand_value", ""));
-				XposedHelpers.setStaticObjectField(classBuild, "BRAND" ,pref.getString("fake_brand_value", ""));
-			}
-			if(pref.getBoolean("fake_cpu_abi_key", false) && !(pref.getString("fake_cpu_abi_value", "").equalsIgnoreCase(""))){
-				if(DEBUG_MODE) XposedBridge.log("setStaticObjectField:CPU_ABI="+pref.getString("fake_cpu_abi_value", ""));
-				XposedHelpers.setStaticObjectField(classBuild, "CPU_ABI" ,pref.getString("fake_cpu_abi_value", ""));
-			}
-			if(pref.getBoolean("fake_cpu_abi2_key", false) && !(pref.getString("fake_cpu_abi2_value", "").equalsIgnoreCase(""))){
-				if(DEBUG_MODE) XposedBridge.log("setStaticObjectField:CPU_ABI2="+pref.getString("fake_cpu_abi2_value", ""));
-				XposedHelpers.setStaticObjectField(classBuild, "CPU_ABI2" ,pref.getString("fake_cpu_abi2_value", ""));
-			}
-			if(pref.getBoolean("fake_device_key", false) && !(pref.getString("fake_device_value", "").equalsIgnoreCase(""))){
-				if(DEBUG_MODE) XposedBridge.log("setStaticObjectField:DEVICE="+pref.getString("fake_device_value", ""));
-				XposedHelpers.setStaticObjectField(classBuild, "DEVICE" ,pref.getString("fake_device_value", ""));
-			}
-			if(pref.getBoolean("fake_display_key", false) && !(pref.getString("fake_display_value", "").equalsIgnoreCase(""))){
-				if(DEBUG_MODE) XposedBridge.log("setStaticObjectField:DISPLAY="+pref.getString("fake_display_value", ""));
-				XposedHelpers.setStaticObjectField(classBuild, "DISPLAY" ,pref.getString("fake_display_value", ""));
-			}
-			if(pref.getBoolean("fake_fingerprint_key", false) && !(pref.getString("fake_fingerprint_value", "").equalsIgnoreCase(""))){
-				if(DEBUG_MODE) XposedBridge.log("setStaticObjectField:FINGERPRINT="+pref.getString("fake_fingerprint_value", ""));
-				XposedHelpers.setStaticObjectField(classBuild, "FINGERPRINT" ,pref.getString("fake_fingerprint_value", ""));
-			}
-			if(pref.getBoolean("fake_hardware_key", false) && !(pref.getString("fake_hardware_value", "").equalsIgnoreCase(""))){
-				if(DEBUG_MODE) XposedBridge.log("setStaticObjectField:HARDWARE="+pref.getString("fake_hardware_value", ""));
-				XposedHelpers.setStaticObjectField(classBuild, "HARDWARE" ,pref.getString("fake_hardware_value", ""));
-			}
-			if(pref.getBoolean("fake_host_key", false) && !(pref.getString("fake_host_value", "").equalsIgnoreCase(""))){
-				if(DEBUG_MODE) XposedBridge.log("setStaticObjectField:HOST="+pref.getString("fake_host_value", ""));
-				XposedHelpers.setStaticObjectField(classBuild, "HOST" ,pref.getString("fake_host_value", ""));
-			}
-			if(pref.getBoolean("fake_id_key", false) && !(pref.getString("fake_id_value", "").equalsIgnoreCase(""))){
-				if(DEBUG_MODE) XposedBridge.log("setStaticObjectField:ID="+pref.getString("fake_id_value", ""));
-				XposedHelpers.setStaticObjectField(classBuild, "ID" ,pref.getString("fake_id_value", ""));
-			}
-			if(pref.getBoolean("fake_manufacturer_key", false) && !(pref.getString("fake_manufacturer_value", "").equalsIgnoreCase(""))){
-				if(DEBUG_MODE) XposedBridge.log("setStaticObjectField:MANUFACTURER="+pref.getString("fake_manufacturer_value", ""));
-				XposedHelpers.setStaticObjectField(classBuild, "MANUFACTURER" ,pref.getString("fake_manufacturer_value", ""));
-			}
-			if(pref.getBoolean("fake_model_key", false) && !(pref.getString("fake_model_value", "").equalsIgnoreCase(""))){
-				if(DEBUG_MODE) XposedBridge.log("setStaticObjectField:MODEL="+pref.getString("fake_model_value", ""));
-				XposedHelpers.setStaticObjectField(classBuild, "MODEL" ,pref.getString("fake_model_value", ""));
-			}
-			if(pref.getBoolean("fake_product_key", false) && !(pref.getString("fake_product_value", "").equalsIgnoreCase(""))){
-				if(DEBUG_MODE) XposedBridge.log("setStaticObjectField:PRODUCT="+pref.getString("fake_product_value", ""));
-				XposedHelpers.setStaticObjectField(classBuild, "PRODUCT" ,pref.getString("fake_product_value", ""));
-			}
-			if(pref.getBoolean("fake_radio_key", false) && !(pref.getString("fake_radio_value", "").equalsIgnoreCase(""))){
-				if(DEBUG_MODE) XposedBridge.log("setStaticObjectField:RADIO="+pref.getString("fake_radio_value", ""));
-				XposedHelpers.setStaticObjectField(classBuild, "RADIO" ,pref.getString("fake_radio_value", ""));
-			}
-			if(pref.getBoolean("fake_tags_key", false) && !(pref.getString("fake_tags_value", "").equalsIgnoreCase(""))){
-				if(DEBUG_MODE) XposedBridge.log("setStaticObjectField:TAGS="+pref.getString("fake_tags_value", ""));
-				XposedHelpers.setStaticObjectField(classBuild, "TAGS" ,pref.getString("fake_tags_value", ""));
-			}
-			if(pref.getBoolean("fake_time_key", false) && (pref.getLong("fake_time_value", 0) != 0)){
-				if(DEBUG_MODE) XposedBridge.log("setStaticObjectField:TIME="+pref.getLong("fake_time_value", 0));
-				XposedHelpers.setStaticObjectField(classBuild, "TIME" ,pref.getLong("fake_time_value", 0));
-			}
-			if(pref.getBoolean("fake_type_key", false) && !(pref.getString("fake_type_value", "").equalsIgnoreCase(""))){
-				if(DEBUG_MODE) XposedBridge.log("setStaticObjectField:TYPE="+pref.getString("fake_type_value", ""));
-				XposedHelpers.setStaticObjectField(classBuild, "TYPE" ,pref.getString("fake_type_value", ""));
-			}
-			if(pref.getBoolean("fake_user_key", false) && !(pref.getString("fake_user_value", "").equalsIgnoreCase(""))){
-				if(DEBUG_MODE) XposedBridge.log("setStaticObjectField:USER="+pref.getString("fake_user_value", ""));
-				XposedHelpers.setStaticObjectField(classBuild, "USER" ,pref.getString("fake_user_value", ""));
-			}
+		final String pkg = lpparam.packageName;
 
-			Class<?> classBuild2 = XposedHelpers.findClass("android.os.Build.VERSION", lpp.classLoader);    	  
-			if(pref.getBoolean("fake_codename_key", false) && !(pref.getString("fake_codename_value", "").equalsIgnoreCase(""))){
-				if(DEBUG_MODE) XposedBridge.log("setStaticObjectField:CODENAME="+pref.getString("fake_codename_value", ""));
-				XposedHelpers.setStaticObjectField(classBuild2, "CODENAME" ,pref.getString("fake_codename_value", ""));
-			}
-			if(pref.getBoolean("fake_incremental_key", false) && !(pref.getString("fake_incremental_value", "").equalsIgnoreCase(""))){
-				if(DEBUG_MODE) XposedBridge.log("setStaticObjectField:INCREMENTAL="+pref.getString("fake_incremental_value", ""));
-				XposedHelpers.setStaticObjectField(classBuild2, "INCREMENTAL" ,pref.getString("fake_incremental_value", ""));
-			}
-			if(pref.getBoolean("fake_release_key", false) && !(pref.getString("fake_release_value", "").equalsIgnoreCase(""))){
-				if(DEBUG_MODE) XposedBridge.log("setStaticObjectField:RELEASE="+pref.getString("fake_release_value", ""));
-				XposedHelpers.setStaticObjectField(classBuild2, "RELEASE" ,pref.getString("fake_release_value", ""));
-			}
-			if(pref.getBoolean("fake_sdk_key", false) && !(pref.getString("fake_sdk_value", "").equalsIgnoreCase(""))){
-				if(DEBUG_MODE) XposedBridge.log("setStaticObjectField:SDK="+pref.getString("fake_sdk_value", ""));
-				XposedHelpers.setStaticObjectField(classBuild2, "SDK" ,pref.getString("fake_sdk_value", ""));
-			}
-			if(pref.getBoolean("fake_sdk_int_key", false) && (pref.getInt("fake_sdk_int_value", 0) != 0)){
-				if(DEBUG_MODE) XposedBridge.log("setStaticObjectField:SDK_INT="+pref.getInt("fake_sdk_int_value", 0));
-				XposedHelpers.setStaticObjectField(classBuild2, "SDK_INT" ,pref.getInt("fake_sdk_int_value", 0));
-			}
+		// Values from build.prop, like getProperty("ro.build.id")
+		try{
+			// TODO: Refactor XC_MethodHook into static methods to avoid accidental inclusion of global parameters?
+			XposedHelpers.findAndHookMethod("java.lang.System", lpparam.classLoader, "getProperty", String.class, new XC_MethodHook() {
+				@Override
+				protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+					String message = pkg + ": System.getProperty(" + param.args[0] + ") = " + param.getResult();
+					if (param.args[0] == "os.version") {
+						String override = "1";
+						message += " -> " + override;
+						param.setResult(override);
+					}
+
+					if (DEBUG_MODE) Log.d(LogSource, message);
+				}
+			});
+		} catch (NoSuchMethodError e){
+			if (DEBUG_MODE) XposedBridge.log("couldn't hook method System.getProperty()");
+			return;
+		}
+		try{
+			XposedHelpers.findAndHookMethod("android.os.SystemProperties", lpparam.classLoader, "get", String.class, new XC_MethodHook() {
+				@Override
+				protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+					String message = pkg + ": SystemProperties.get(" + param.args[0] + ") = " + param.getResult();
+
+					String override = null;
+					if (param.args[0] == "ro.product.display") {
+						override = "NoMoto";
+					} else if (param.args[0] == "ro.boot.hardware.sku") {
+						override = "Fake";
+					} else if (param.args[0] == "gsm.sim.operator.numeric") {
+						override = "1";
+					}
+
+					if (override != null) {
+						message += " -> " + override;
+						param.setResult(override);
+					}
+
+					if (DEBUG_MODE) Log.d(LogSource, message);
+				}
+			});
+		} catch (NoSuchMethodError e){
+			if (DEBUG_MODE) XposedBridge.log("couldn't hook method SystemProperties.get()");
+			return;
+		}
+		// Source: https://android.googlesource.com/platform/frameworks/base/+/84e2756c0f3794c6efe5568a9d09101ba689fb39/core/java/android/provider/Settings.java
+		// Reference: https://developer.android.com/reference/android/provider/Settings.Global.html#getString(android.content.ContentResolver,%20java.lang.String)
+		try{
+			XposedHelpers.findAndHookMethod("android.provider.Settings.Global", lpparam.classLoader, "getString", ContentResolver.class, String.class, new XC_MethodHook() {
+				@Override
+				protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+					String message = pkg + ": Settings.Global.getString(" + param.args[1] + ") = " + param.getResult();
+
+					String override = null;
+					if (param.args[1] == "device_provisioned") {
+						override = "0";
+					}
+
+					if (override != null) {
+						message += " -> " + override;
+						param.setResult(override);
+					}
+
+					if (DEBUG_MODE) Log.d(LogSource, message);
+				}
+			});
+		} catch (NoSuchMethodError e){
+			if (DEBUG_MODE) XposedBridge.log("couldn't hook method Settings.Global.getString()");
+			return;
+		}
+		// Reference: https://developer.android.com/reference/android/provider/Settings.Secure.html#getString(android.content.ContentResolver,%20java.lang.String)
+		try{
+			XposedHelpers.findAndHookMethod("android.provider.Settings.Secure", lpparam.classLoader, "getString", ContentResolver.class, String.class, new XC_MethodHook() {
+				@Override
+				protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+					String message = pkg + ": Settings.Secure.getString(" + param.args[1] + ") = " + param.getResult();
+
+					String override = null;
+					if (param.args[1] == Settings.Secure.ANDROID_ID) {
+						override = "1111222233334444";
+					}
+
+					if (override != null) {
+						message += " -> " + override;
+						param.setResult(override);
+					}
+
+					if (DEBUG_MODE) Log.d(LogSource, message);
+				}
+			});
+		} catch (NoSuchMethodError e){
+			if (DEBUG_MODE) XposedBridge.log("couldn't hook method Settings.Secure.getString()");
+			return;
+		}
+
+		// IMEI
+		// Source: https://android.googlesource.com/platform/frameworks/base/+/master/telephony/java/android/telephony/TelephonyManager.java
+		// Reference: https://developer.android.com/reference/android/telephony/TelephonyManager.html
+		try{
+			XposedHelpers.findAndHookMethod("android.telephony.TelephonyManager", lpparam.classLoader, "getDeviceId", new XC_MethodHook() {
+				@Override
+				protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+					String message = pkg + ": getDeviceId.get() = " + param.getResult();
+					String override = "111222333444555";
+					message += " -> " + override;
+					param.setResult(override);
+					if (DEBUG_MODE) Log.d(LogSource, message);
+				}
+			});
+		} catch (NoSuchMethodError e){
+			if (DEBUG_MODE) XposedBridge.log("couldn't hook method getDeviceId()");
+			return;
+		}
+		try{
+			XposedHelpers.findAndHookMethod("android.telephony.TelephonyManager", lpparam.classLoader, "getDeviceId", int.class, new XC_MethodHook() {
+				@Override
+				protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+					String message = pkg + ": getDeviceId.get(" + param.args[0] + ") = " + param.getResult();
+					String override = "111222333444555";
+					message += " -> " + override;
+					param.setResult(override);
+					if (DEBUG_MODE) Log.d(LogSource, message);
+				}
+			});
+		} catch (NoSuchMethodError e){
+			if (DEBUG_MODE) XposedBridge.log("couldn't hook method getDeviceId(int)");
+			return;
+		}
+	}
+
+	public void handle() {
+		Class<?> classBuild = XposedHelpers.findClass("android.os.Build", lpparam.classLoader);
+
+		HandleFakeStaticString(classBuild, "BOARD", "fake_board");
+		HandleFakeStaticString(classBuild, "BOOTLOADER", "fake_bootloader");
+		HandleFakeStaticString(classBuild, "BRAND", "fake_brand");
+		HandleFakeStaticString(classBuild, "CPU_ABI", "fake_cpu_abi");
+		HandleFakeStaticString(classBuild, "CPU_ABI2", "fake_cpu_abi2");
+		HandleFakeStaticString(classBuild, "DEVICE", "fake_device");
+		HandleFakeStaticString(classBuild, "DISPLAY", "fake_display");
+		HandleFakeStaticString(classBuild, "FINGERPRINT", "fake_fingerprint");
+		HandleFakeStaticString(classBuild, "HARDWARE", "fake_hardware");
+		HandleFakeStaticString(classBuild, "HOST", "fake_host");
+		HandleFakeStaticString(classBuild, "ID", "fake_id");
+		HandleFakeStaticString(classBuild, "MANUFACTURER", "fake_manufacturer");
+		HandleFakeStaticString(classBuild, "MODEL", "fake_model");
+		HandleFakeStaticString(classBuild, "PRODUCT", "fake_product");
+		HandleFakeStaticString(classBuild, "RADIO", "fake_radio");
+		HandleFakeStaticString(classBuild, "TAGS", "fake_tags");
+		HandleFakeStaticInt(classBuild, "TIME", "fake_time");
+		HandleFakeStaticString(classBuild, "TYPE", "fake_type");
+		HandleFakeStaticString(classBuild, "USER", "fake_user");
+
+		Class<?> classBuild2 = XposedHelpers.findClass("android.os.Build.VERSION", lpparam.classLoader);
+
+		HandleFakeStaticString(classBuild2, "CODENAME", "fake_codename");
+		HandleFakeStaticString(classBuild2, "INCREMENTAL", "fake_incremental");
+		HandleFakeStaticString(classBuild2, "RELEASE", "fake_release");
+		HandleFakeStaticString(classBuild2, "SDK", "fake_sdk");
+		HandleFakeStaticInt(classBuild2, "SDK_INT", "fake_sdk_int");
+	}
+
+	private void HandleFakeStaticString(Class<?> myClass, String fieldName, String fakeKey) {
+		String defValue = "";
+		String fakeEnabledKey = fakeKey + "_key";
+		String fakeValueKey = fakeKey + "_value";
+		if (pref.getBoolean(fakeEnabledKey, false) && (pref.getString(fakeValueKey, defValue) != defValue)) {
+			if (DEBUG_MODE) Log.d(LogSource, lpparam.packageName + ": " + myClass.getCanonicalName() + "." + fieldName + " = " + XposedHelpers.getStaticObjectField(myClass, fieldName) + " -> " + pref.getString(fakeValueKey, defValue));
+			XposedHelpers.setStaticObjectField(myClass, fieldName, pref.getString(fakeValueKey, defValue));
+		}
+	}
+
+	private void HandleFakeStaticInt(Class<?> myClass, String fieldName, String fakeKey) {
+		int defValue = 0;
+		String fakeEnabledKey = fakeKey + "_key";
+		String fakeValueKey = fakeKey + "_value";
+		if (pref.getBoolean(fakeEnabledKey, false) && (pref.getInt(fakeValueKey, defValue) != defValue)) {
+			if (DEBUG_MODE) Log.d(LogSource, lpparam.packageName + ": " + myClass.getCanonicalName() + "." + fieldName + " = " + XposedHelpers.getStaticObjectField(myClass, fieldName) + " -> " + pref.getInt(fakeValueKey, defValue));
+			XposedHelpers.setStaticObjectField(myClass, fieldName, pref.getInt(fakeValueKey, defValue));
 		}
 	}
 }
