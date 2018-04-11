@@ -23,13 +23,24 @@ public class FakeDeviceData implements IXposedHookLoadPackage {
 
 		try {
 			pref = new XSharedPreferences("jp.rmitkt.xposed.fakedevicedata", "pref");
+
+			if (pref.getAll().size() == 0) {
+				String message = "Error loading prefs.xml (no settings found). Does the file exist and have read permissions?";
+				Log.d(LogSource, message);
+				XposedBridge.log(LogSource + ": " + message);
+			}
+
 			if (!pref.getBoolean(lpparam.packageName, false))
 				return;
 
 			// Values like Build.MODEL
 			handle();
 		} catch (Exception e) {
-			if (DEBUG_MODE) XposedBridge.log(LogSource + ": Error loading prefs.xml. Does the file exist and have read permissions?");
+			if (DEBUG_MODE) {
+				String message = "Error loading prefs.xml. Does the file exist and have read permissions?";
+				Log.d(LogSource, message);
+				XposedBridge.log(LogSource + ": " + message);
+			}
 			return;
 		}
 
@@ -52,7 +63,12 @@ public class FakeDeviceData implements IXposedHookLoadPackage {
 				}
 			});
 		} catch (NoSuchMethodError e){
-			if (DEBUG_MODE) XposedBridge.log("couldn't hook method System.getProperty()");
+			if (DEBUG_MODE) {
+				String message = "couldn't hook method System.getProperty()";
+				Log.d(LogSource, message);
+				XposedBridge.log(LogSource + ": " + message);
+			}
+
 			return;
 		}
 		try{
@@ -79,7 +95,12 @@ public class FakeDeviceData implements IXposedHookLoadPackage {
 				}
 			});
 		} catch (NoSuchMethodError e){
-			if (DEBUG_MODE) XposedBridge.log("couldn't hook method SystemProperties.get()");
+			if (DEBUG_MODE) {
+				String message = "couldn't hook method SystemProperties.get()";
+				Log.d(LogSource, message);
+				XposedBridge.log(LogSource + ": " + message);
+			}
+
 			return;
 		}
 		// Source: https://android.googlesource.com/platform/frameworks/base/+/84e2756c0f3794c6efe5568a9d09101ba689fb39/core/java/android/provider/Settings.java
@@ -104,7 +125,12 @@ public class FakeDeviceData implements IXposedHookLoadPackage {
 				}
 			});
 		} catch (NoSuchMethodError e){
-			if (DEBUG_MODE) XposedBridge.log("couldn't hook method Settings.Global.getString()");
+			if (DEBUG_MODE) {
+				String message = "couldn't hook method Settings.Global.getString()";
+				Log.d(LogSource, message);
+				XposedBridge.log(LogSource + ": " + message);
+			}
+
 			return;
 		}
 		// Reference: https://developer.android.com/reference/android/provider/Settings.Secure.html#getString(android.content.ContentResolver,%20java.lang.String)
@@ -128,7 +154,12 @@ public class FakeDeviceData implements IXposedHookLoadPackage {
 				}
 			});
 		} catch (NoSuchMethodError e){
-			if (DEBUG_MODE) XposedBridge.log("couldn't hook method Settings.Secure.getString()");
+			if (DEBUG_MODE) {
+				String message = "couldn't hook method Settings.Secure.getString()";
+				Log.d(LogSource, message);
+				XposedBridge.log(LogSource + ": " + message);
+			}
+
 			return;
 		}
 
@@ -147,7 +178,12 @@ public class FakeDeviceData implements IXposedHookLoadPackage {
 				}
 			});
 		} catch (NoSuchMethodError e){
-			if (DEBUG_MODE) XposedBridge.log("couldn't hook method getDeviceId()");
+			if (DEBUG_MODE) {
+				String message = "couldn't hook method getDeviceId()";
+				Log.d(LogSource, message);
+				XposedBridge.log(LogSource + ": " + message);
+			}
+
 			return;
 		}
 		try{
@@ -162,7 +198,12 @@ public class FakeDeviceData implements IXposedHookLoadPackage {
 				}
 			});
 		} catch (NoSuchMethodError e){
-			if (DEBUG_MODE) XposedBridge.log("couldn't hook method getDeviceId(int)");
+			if (DEBUG_MODE) {
+				String message = "couldn't hook method getDeviceId(int)";
+				Log.d(LogSource, message);
+				XposedBridge.log(LogSource + ": " + message);
+			}
+
 			return;
 		}
 	}
